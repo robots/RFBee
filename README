@@ -1,0 +1,8 @@
+This is a rewrite of the RFBee_v1_1 firmware into C.
+
+Please note that the frequencie table has been altered! 
+If you want to use 915Mhz frequencies use the original
+ccx_cfg.h file from RFBee_v1_1 firmware!
+
+1st frequencty configuration has been changed to work
+with 860Mhz version of TI MSP430 Chronos watch.
