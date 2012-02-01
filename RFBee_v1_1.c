@@ -68,10 +68,10 @@ static void loop()
 		sleepCounter = 1000; // reset the sleep counter
 		if (serialMode == SERIALCMDMODE) {
 			readSerialCmd();
-    } else {
-      readSerialData();
+		} else {
+			readSerialData();
 		}
-  }
+	}
 
 	if (GDO_PIN & GDO0) {
 #ifdef DEBUG
@@ -82,7 +82,7 @@ static void loop()
 	}
 
 	sleepCounter--;
-  
+
 	// check if we can go to sleep again, going into low power too early will result in lost data in the CCx fifo.
 	if ((sleepCounter == 0) && (config_get(CONFIG_RFBEE_MODE) == LOWPOWER_MODE)) {
 #ifdef DEBUG
