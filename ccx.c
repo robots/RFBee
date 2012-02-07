@@ -194,6 +194,12 @@ void ccx_set_pa(uint8_t configId,uint8_t paIndex)
 	ccx_write(CCx_PATABLE, PAval);
 }
 
+void ccx_idle()
+{
+  ccx_strobe(CCx_SIDLE);
+  while (ccx_strobe(CCx_SNOP) & 0xF0);
+}
+
 void ccx_mode(uint8_t md)
 {
 

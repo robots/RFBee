@@ -19,16 +19,19 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+#include <avr/interrupt.h>
 #include "globals.h"
 #include "rfBeeCore.h"
 #include "rfBeeSerial.h"
 
 // send data via RF
-void transmitData(uint8_t *txData,uint8_t len, uint8_t srcAddress, uint8_t destAddress)
+void transmitData(uint8_t *txData, uint8_t len, uint8_t srcAddress, uint8_t destAddress)
 {
 	uint8_t stat;
 
 	(void)stat;
+
+	ccx_strobe(CCx_SFTX); // flush the TX buffer
 
 	ccx_write(CCx_TXFIFO, len + 2);
 	ccx_write(CCx_TXFIFO, destAddress);
@@ -42,7 +45,7 @@ void transmitData(uint8_t *txData,uint8_t len, uint8_t srcAddress, uint8_t destA
 		if (0 == size) {
 			break;
 		} else {
-      ccx_strobe(CCx_STX);
+			ccx_strobe(CCx_STX);
 		}
 	}
 
@@ -76,50 +79,53 @@ uint8_t txFifoFree()
 }
 
 // receive data via RF, rxData must be at least CCx_PACKT_LEN bytes long
-int receiveData(uint8_t *rxData, uint8_t *len, uint8_t *srcAddress, uint8_t *destAddress, uint8_t *rssi , uint8_t *lqi){
-	uint8_t stat;
-	uint8_t rx_len;
+int receiveData(struct ccxPacket_t *packet)
+{
+	uint8_t fifo_len;
 
-	stat = ccx_read(CCx_RXFIFO, &rx_len);
+	uint8_t rx_bytes;
+	uint8_t rx_bytes1;
+
+	// workaround for bug in cc1101 chip
+	ccx_read(CCx_RXBYTES, &rx_bytes1);
+	do {
+		rx_bytes = rx_bytes1;
+		ccx_read(CCx_RXBYTES, &rx_bytes1);
+	} while (rx_bytes != rx_bytes1);
+
+	ccx_read(CCx_RXFIFO, &fifo_len);
 #ifdef DEBUG
-	printf("length: %d\r\n", rx_len);
+	printf("length: %d %d\r\n", fifo_len, rx_bytes);
 #endif
-	ccx_read(CCx_RXFIFO, destAddress);
-	ccx_read(CCx_RXFIFO, srcAddress);
-
-	rx_len -= 2;  // discard address bytes from payloadLen
 
 	// MD: check buffer size, drop large packets
-	if (rx_len > *len) {
+	// also handles fifo overflow
+	if ((rx_bytes != fifo_len + 1 + 2) || (fifo_len > CCx_PACKT_LEN)) {
 		errNo = 1;
+		cli();
+		ccx_idle();
 		ccx_strobe(CCx_SFRX); // flush the RX buffer
+		ccx_strobe(CCx_SRX);
+		sei();
 		return ERR;
 	}
 
-	ccx_read_burst(CCx_RXFIFO, rxData, rx_len);
-	ccx_read(CCx_RXFIFO, rssi);
-
-	*rssi = ccx_decode_rssi(*rssi);
-	stat = ccx_read(CCx_RXFIFO, lqi);
-
-	*lqi = *lqi & 0x7F; // strip off the CRC bit
-	*len = rx_len;
+	packet->len = fifo_len;
+	ccx_read_burst(CCx_RXFIFO, packet->frame, fifo_len);
+	ccx_read_burst(CCx_RXFIFO, packet->metrics, 2);
 
 	// check checksum ok
-	if ((*lqi & 0x81) == 0) {
+	if ((packet->lqi & 0x80) == 0) {
 		errNo = 4;
 		return ERR;
 		//return NOTHING;
-  }
+	}
 
-	// handle potential RX overflows by flushing the RF FIFO as described in section 10.1 of the CC 1100 datasheet
-	if ((stat & 0x70) == 0x60) { //Modified by Icing. When overflows, STATE[2:0] = 110
-		errNo = 3; //Error RX overflow
-		ccx_strobe(CCx_SFRX); // flush the RX buffer
-		return ERR;
-  }
+	// strip off the CRC bit
+	packet->lqi = packet->lqi & 0x7F;
+	packet->rssi = ccx_decode_rssi(packet->rssi);
 
-  return OK;
+	return OK;
 }
 
 // power saving
@@ -171,8 +177,3 @@ void lowPowerOn()
 	sleepNow(SLEEP_MODE_IDLE);
 	//ccx_strobe(CCx_SIDLE);
 }
-
-
-
-
-

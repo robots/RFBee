@@ -15,8 +15,10 @@ struct serial_fifo_t rx_fifo;
 struct serial_fifo_t tx_fifo;
 volatile uint8_t tx_sending;
 
+#ifndef SERIAL_NO_PRINTF
 static int serial_putchar(char c, FILE *stream);
 FILE mystdout = FDEV_SETUP_STREAM(serial_putchar, NULL, _FDEV_SETUP_WRITE);
+#endif
 
 void serial_init(uint32_t baud)
 {
@@ -26,7 +28,9 @@ void serial_init(uint32_t baud)
 	serial_fifo_init(&tx_fifo);
 	tx_sending = 0;
 
+#ifndef SERIAL_NO_PRINTF
 	stdout = &mystdout;
+#endif
 }
 
 void serial_set_baudrate(uint32_t baud)
@@ -53,7 +57,9 @@ try_again:
 	UBRR0L = baud_setting & 0xFF;
 
 	UCSR0B = _BV(TXEN0) | _BV(RXEN0) | _BV(RXCIE0);
-	//UDR0 = 'a';
+#ifdef DEBUG
+	UDR0 = 'a';
+#endif
 }
 
 
@@ -77,11 +83,13 @@ void serial_write_hex(uint8_t v)
 	serial_write(temp);
 }
 
+#ifndef SERIAL_NO_PRINTF
 static int serial_putchar(char c, FILE *stream)
 {
 	serial_write(c);
 	return 0;
 }
+#endif
 
 void serial_write(uint8_t c)
 {

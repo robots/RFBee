@@ -66,7 +66,7 @@ static const AT_Command_t atCommands[] PROGMEM =
 // Serial
 	{ BD_label, CONFIG_BDINDEX, 1 , 3, changeUartBaudRate },  // Uart baudrate                    (0: 9600 , 1:19200, 2:38400 ,3:115200)
 	{ TH_label, CONFIG_TX_THRESHOLD, 2 , 32, 0 },            // TH- threshold of transmitting    (0~32) 
-	{ OF_label, CONFIG_OUTPUT_FORMAT, 1 , 3 , 0 },           // Output Format                    (0: payload only, 1: source, dest, payload ,  2: payload len, source, dest, payload, rssi, lqi, 3: same as 2, but all except for payload as decimal and separated by comma's )
+	{ OF_label, CONFIG_OUTPUT_FORMAT, 1 , 4 , 0 },           // Output Format                    (0: payload only, 1: source, dest, payload ,  2: payload len, source, dest, payload, rssi, lqi, 3: same as 2, but all except for payload as decimal and separated by comma's )
 // Mode 
 	{ MD_label, CONFIG_RFBEE_MODE, 1 , 3 , setRFBeeMode},    // CCx Working mode                 (0:transceive , 1:transmit , 2:receive, 3:lowpower)
 	{ O0_label, 0, 0 , 0, setSerialDataMode },              // thats o+ zero, go back to online mode
@@ -312,17 +312,13 @@ void writeSerialError()
 // read data from CCx and write it to Serial based on the selected output format
 void writeSerialData()
 {
-	uint8_t rxData[CCx_PACKT_LEN+1];
-	uint8_t len = CCx_PACKT_LEN;
-	uint8_t srcAddress;
-	uint8_t destAddress;
-	char rssi;
-	uint8_t lqi;
+	struct ccxPacket_t packet;
+
 	int result;
 	uint8_t of;
 	uint8_t i;
 
-	result = receiveData(rxData, &len, &srcAddress, &destAddress, (uint8_t *)&rssi , &lqi);
+	result = receiveData(&packet);
 	if (result == ERR) {
 		writeSerialError();
 		return;
@@ -338,19 +334,38 @@ void writeSerialData()
 //  2: payload len, source, dest, payload, rssi, lqi
 //  3: payload len, source, dest, payload,",", rssi (DEC),",",lqi (DEC)
 	of = config_get(CONFIG_OUTPUT_FORMAT);
-	rxData[len] = '\0';
+	packet.frame[packet.len] = '\0';
+
+	if ((of == 4) && (packet.len <= 8)) {
+		of = 3;
+	}
 
 	if (of == 0) {
-		printf("%s", rxData);
+		printf("%s", packet.frame);
 	} else if (of == 1) {
-		printf("%02x,%02x,%s\r\n", srcAddress, destAddress, rxData);
+		printf("%02x,%02x,%s\r\n", packet.frame[0], packet.frame[1], &packet.frame[2]);
 	} else if (of == 2) {
-		printf("%d,%02x,%02x,%s,%02x,%02x\n\r", len, srcAddress, destAddress, rxData, rssi, lqi);
+		printf("%d,%02x,%02x,%s,%02x,%02x\n\r", packet.len, packet.frame[0], packet.frame[1], &packet.frame[2], packet.rssi, packet.lqi);
 	} else if (of == 3) {
-		printf("%02x,%02x,%02x,", len, srcAddress, destAddress);
-		for (i = 0; i < len; i++)
-			printf("%02x", rxData[i]);
-		printf(",%d,%d\r\n", rssi, lqi);
+		printf("%02x,%02x,%02x,", packet.len, packet.frame[0], packet.frame[1]);
+		for (i = 0; i < packet.len-2; i++)
+			printf("%02x", packet.frame[2+i]);
+		printf(",%d,%d\r\n", packet.rssi, packet.lqi);
+	} else if (of == 4) {
+		printf("%02x,", packet.len);
+
+		for (i = 0; i < 4; i++)
+			printf("%02x", packet.frame[i]);
+		printf(",");
+
+		for (i = 4; i < 8; i++)
+			printf("%02x", packet.frame[i]);
+		printf(",");
+
+		for (i = 8; i < packet.len; i++)
+			printf("%02x", packet.frame[i]);
+
+		printf(",%d,%d\r\n", packet.rssi, packet.lqi);
 	}	else {
 		printf("error: unknown format\r\n");
 	}

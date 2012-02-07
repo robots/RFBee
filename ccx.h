@@ -120,6 +120,17 @@
 
 #define CCx_PACKT_LEN   (CCx_FIFO_SIZE - 3) // see section 15.3 of the datasheet
 
+struct ccxPacket_t {
+	uint8_t len;
+	uint8_t frame[CCx_PACKT_LEN+1];
+	union {
+		uint8_t metrics[2];
+		struct {
+			uint8_t rssi;
+			uint8_t lqi;
+		};
+	};
+} __attribute__ ((packed));
 
 void ccx_power_on_startup();
 uint8_t ccx_read(uint8_t addr, uint8_t *data);
@@ -130,6 +141,7 @@ uint8_t ccx_strobe(uint8_t addr);
 void ccx_setup(uint8_t configId);
 void ccx_read_setup();
 void ccx_set_pa(uint8_t configId,uint8_t paIndex);
+void ccx_idle();
 void ccx_mode(uint8_t md);
 uint8_t ccx_get_config_num();
 uint8_t ccx_decode_rssi(uint8_t rssiEnc);

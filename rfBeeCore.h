@@ -30,7 +30,7 @@
 
 void transmitData(uint8_t *txData,uint8_t len, uint8_t srcAddress, uint8_t destAddress);
 uint8_t txFifoFree();
-int receiveData(uint8_t *rxData, uint8_t *len, uint8_t *srcAddress, uint8_t *destAddress, uint8_t *rssi , uint8_t *lqi);
+int receiveData(struct ccxPacket_t *packet);
 void sleepNow(uint8_t mode);
 void lowPowerOn();
 
