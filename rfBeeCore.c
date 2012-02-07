@@ -39,7 +39,7 @@ void transmitData(uint8_t *txData, uint8_t len, uint8_t srcAddress, uint8_t dest
 	ccx_write_burst(CCx_TXFIFO, txData, len); // write len bytes of the serialData buffer into the CCx txfifo
 	ccx_strobe(CCx_STX);
 
-  while(1) {
+	while(1) {
 		uint8_t size;
 		stat = ccx_read(CCx_TXBYTES, &size);
 		if (0 == size) {
