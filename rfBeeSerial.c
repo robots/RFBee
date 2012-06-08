@@ -45,55 +45,56 @@ volatile int sleepCounter;
 // RFbee AT commands
 
 // Need to define the labels outside the struct :-(
-static const char DA_label[] PROGMEM="DA";
-static const char MA_label[] PROGMEM="MA";
-static const char AC_label[] PROGMEM="AC";
-static const char PA_label[] PROGMEM="PA";
-static const char TH_label[] PROGMEM="TH";
-static const char BD_label[] PROGMEM="BD";
-static const char MD_label[] PROGMEM="MD";
-static const char FV_label[] PROGMEM="FV";
-static const char HV_label[] PROGMEM="HV";
-static const char RS_label[] PROGMEM="RS";
-static const char CF_label[] PROGMEM="CF";
-static const char OF_label[] PROGMEM="OF";
-static const char O0_label[] PROGMEM="O0";
-static const char SL_label[] PROGMEM="SL";
+static const char DA_label[] PROGMEM = "DA";
+static const char MA_label[] PROGMEM = "MA";
+static const char AC_label[] PROGMEM = "AC";
+static const char PA_label[] PROGMEM = "PA";
+static const char TH_label[] PROGMEM = "TH";
+static const char BD_label[] PROGMEM = "BD";
+static const char MD_label[] PROGMEM = "MD";
+static const char FV_label[] PROGMEM = "FV";
+static const char HV_label[] PROGMEM = "HV";
+static const char RS_label[] PROGMEM = "RS";
+static const char CF_label[] PROGMEM = "CF";
+static const char OF_label[] PROGMEM = "OF";
+static const char O0_label[] PROGMEM = "O0";
+static const char SL_label[] PROGMEM = "SL";
 
 static const AT_Command_t atCommands[] PROGMEM =
 {
 // Addressing:
-	{ DA_label, CONFIG_DEST_ADDR, 3 , 255, 0 },             // Destination address   (0~255)
-	{ MA_label, CONFIG_MY_ADDR, 3 , 255, setMyAddress },     // My address            (0~255)
-	{ AC_label, CONFIG_ADDR_CHECK, 1 , 2, setAddressCheck }, // address check option  (0: no, 1: address check , 2: address check and 0 broadcast )
+	{ DA_label, CONFIG_DEST_ADDR,     3, 255, setDstAddress },                   // Destination address   (0~255)
+	{ MA_label, CONFIG_MY_ADDR,       3, 255, setMyAddress },        // My address            (0~255)
+	{ AC_label, CONFIG_ADDR_CHECK,    1, 2,   setAddressCheck },     // address check option  (0: no, 1: address check , 2: address check and 0 broadcast )
 // RF
-	{ PA_label, CONFIG_PAINDEX, 1 , 7, setPowerAmplifier },  // Power amplifier           (0: -30 , 1: -20 , 2: -15 , 3: -10 , 4: 0 , 5: 5 , 6: 7 , 7: 10 )
-	{ CF_label, CONFIG_CONFIG_ID, 1 , 5, setCCxConfig },     // select CCx configuration  (0: 915 Mhz - 76.8k, 1: 915 Mhz - 4.8k sensitivity, 2: 915 Mhz - 4.8k low current, 3: 868 Mhz - 76.8k, 4: 868 Mhz - 4.8k sensitivity, 5: 868 Mhz - 4.8k low current )
+	{ PA_label, CONFIG_PAINDEX,       1, 7,   setPowerAmplifier },   // Power amplifier           (0: -30 , 1: -20 , 2: -15 , 3: -10 , 4: 0 , 5: 5 , 6: 7 , 7: 10 )
+	{ CF_label, CONFIG_CONFIG_ID,     1, 5,   setCCxConfig },        // select CCx configuration  (0: 915 Mhz - 76.8k, 1: 915 Mhz - 4.8k sensitivity, 2: 915 Mhz - 4.8k low current, 3: 868 Mhz - 76.8k, 4: 868 Mhz - 4.8k sensitivity, 5: 868 Mhz - 4.8k low current )
 // Serial
-	{ BD_label, CONFIG_BDINDEX, 1 , 3, changeUartBaudRate },  // Uart baudrate                    (0: 9600 , 1:19200, 2:38400 ,3:115200)
-	{ TH_label, CONFIG_TX_THRESHOLD, 2 , 32, 0 },            // TH- threshold of transmitting    (0~32) 
-	{ OF_label, CONFIG_OUTPUT_FORMAT, 1 , 4 , 0 },           // Output Format                    (0: payload only, 1: source, dest, payload ,  2: payload len, source, dest, payload, rssi, lqi, 3: same as 2, but all except for payload as decimal and separated by comma's )
+	{ BD_label, CONFIG_BDINDEX,       1, 3,   changeUartBaudRate },  // Uart baudrate                    (0: 9600 , 1:19200, 2:38400 ,3:115200)
+	{ TH_label, CONFIG_TX_THRESHOLD,  2, 32,  0 },                   // TH- threshold of transmitting    (0~32) 
+	{ OF_label, CONFIG_OUTPUT_FORMAT, 1, 4,   0 },                   // Output Format                    (0: payload only, 1: source, dest, payload ,  2: payload len, source, dest, payload, rssi, lqi, 3: same as 2, but all except for payload as decimal and separated by comma's )
 // Mode 
-	{ MD_label, CONFIG_RFBEE_MODE, 1 , 3 , setRFBeeMode},    // CCx Working mode                 (0:transceive , 1:transmit , 2:receive, 3:lowpower)
-	{ O0_label, 0, 0 , 0, setSerialDataMode },              // thats o+ zero, go back to online mode
-	{ SL_label, 0, 0 , 0, setSleepMode },                   // put the rfBee to sleep
+	{ MD_label, CONFIG_RFBEE_MODE,    1, 3,   setRFBeeMode },        // CCx Working mode                 (0:transceive , 1:transmit , 2:receive, 3:lowpower)
+	{ O0_label, 0,                    0, 0,   setSerialDataMode },   // thats o+ zero, go back to online mode
+	{ SL_label, 0,                    0, 0,   setSleepMode },        // put the rfBee to sleep
 // Diagnostics
-	{ FV_label, 0, 0 , 0, showFirmwareVersion },           // firmware version
-	{ HV_label, 0, 0 , 0, showHardwareVersion },           // hardware version
+	{ FV_label, 0,                    0, 0,   showFirmwareVersion }, // firmware version
+	{ HV_label, 0,                    0, 0,   showHardwareVersion }, // hardware version
 // Miscelaneous
-	{ RS_label, 0, 0 , 0, resetConfig }                    // restore default settings
+	{ RS_label, 0,                    0, 0,   resetConfig }          // restore default settings
 };
 
 // error codes and labels
 uint8_t errNo;
 
-static const char error_0[] PROGMEM="no error";
-static const char error_1[] PROGMEM="Packet too large";
-static const char error_2[] PROGMEM="received invalid RF data";
-static const char error_3[] PROGMEM="RX buffer overflow";
-static const char error_4[] PROGMEM="CRC check failed";
+static const char error_0[] PROGMEM = "no error";
+static const char error_1[] PROGMEM = "Packet too large";
+static const char error_2[] PROGMEM = "received invalid RF data";
+static const char error_3[] PROGMEM = "RX buffer overflow";
+static const char error_4[] PROGMEM = "CRC check failed";
 
-static const char * const error_codes[] PROGMEM={
+static const char * const error_codes[] PROGMEM =
+{
 	error_0,
 	error_1,
 	error_2,
@@ -127,7 +128,7 @@ uint8_t getNumParamData(int *result, int size)
 	}
 
 	if (valid) {
-		*result=value;
+		*result = value;
 		return OK;
 	}
 
@@ -150,7 +151,7 @@ int modifyConfig(uint8_t configLabel, uint8_t paramSize, uint8_t paramMaxValue)
 	if (result == NOTHING) {
 		// return current setting
 		printf("%d\r\n", config_get(configLabel));
-		return(OK);
+		return OK;
 	}
 
 	return ERR;
@@ -200,9 +201,9 @@ void readSerialCmd()
 {
 	int result;
 	char data;
-	static uint8_t pos=0;
+	static uint8_t pos = 0;
 
-	while(serial_available() && (serialMode == SERIALCMDMODE)) {      //ATSL changes commandmode while there is a char waiting in the serial buffer.
+	while (serial_available() && (serialMode == SERIALCMDMODE)) {      //ATSL changes commandmode while there is a char waiting in the serial buffer.
 		result = NOTHING;
 		data = serial_read();
 		serialData[pos++] = data; //serialData is our global serial buffer
@@ -243,7 +244,7 @@ void readSerialData()
 
 	len = serial_available() + plus + pos;
 	if (len > BUFFLEN)
-		len=BUFFLEN; //only process at most BUFFLEN chars
+		len = BUFFLEN; //only process at most BUFFLEN chars
 
 	// check how much space we have in the TX fifo
 	fifoSize = txFifoFree();// the fifoSize should be the number of bytes in TX FIFO
@@ -259,7 +260,7 @@ void readSerialData()
 	if (len > fifoSize)
 		len = fifoSize;  // don't overflow the TX fifo
 
-	for(i = plus + pos; i < len; i++) {
+	for (i = plus + pos; i < len; i++) {
 		data = serial_read();
 		serialData[i] = data;  //serialData is our global serial buffer
 		if (data == '+') {
@@ -308,7 +309,6 @@ void readSerialData()
 //  Serial.println(buffer);
 //}
 
-//
 void writeSerialError()
 {
 	char buffer[64];
@@ -449,6 +449,7 @@ int setCCxConfig()
 {
 	// load the appropriate config table
 	uint8_t cfg = config_get(CONFIG_CONFIG_ID);
+
 	ccx_setup(cfg);
 	//ccx_read_setup();
 	// and restore the config settings

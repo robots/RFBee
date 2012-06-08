@@ -29,35 +29,35 @@ void spi_init(uint8_t mode)
 	DDRB |= SCK_PIN | MOSI_PIN | SS_PIN;
 	DDRB &= ~MISO_PIN;
 
-  // enable SPI Master, MSB, SPI mode 0, FOSC/4
-  spi_set_mode(mode);
-  
+	// enable SPI Master, MSB, SPI mode 0, FOSC/4
+	spi_set_mode(mode);
+
 	SPI_PORT |= SS_PIN | SCK_PIN;
 	SPI_PORT &= ~MOSI_PIN;
 }
 
 void spi_set_mode(uint8_t config)
 {
-  volatile uint8_t tmp;
+	volatile uint8_t tmp;
 
-  // enable SPI master with configuration byte specified
-  SPCR = 0;
-  SPCR = (config & 0x7F) | _BV(SPE) | _BV(MSTR);
+	// enable SPI master with configuration byte specified
+	SPCR = 0;
+	SPCR = (config & 0x7F) | _BV(SPE) | _BV(MSTR);
 
-  tmp = SPSR;
-  tmp = SPDR;
+	tmp = SPSR;
+	tmp = SPDR;
 	(void)tmp;
 }
 
 uint8_t spi_transfer(uint8_t value)
 {
-  uint8_t x;
+	uint8_t x;
 
-  SPDR = value;
-  while (!(SPSR & _BV(SPIF)));
-  x = SPDR;
+	SPDR = value;
+	while (!(SPSR & _BV(SPIF)));
+	x = SPDR;
 
-  return x;
+	return x;
 }
 
 void spi_slave_select(uint8_t value)

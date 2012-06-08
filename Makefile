@@ -1,6 +1,6 @@
 PRG     = rfbee
 
-SRC     = RFBee_v1_1.c serial.c serial_fifo.c spi.c rfBeeSerial.c rfBeeCore.c ccx.c config.c
+SRC     = main.c serial.c serial_fifo.c spi.c rfBeeSerial.c rfBeeCore.c ccx.c config.c
 
 #SMPL_DEF += -DMRFI_CC1101
 #

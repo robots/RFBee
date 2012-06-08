@@ -180,7 +180,7 @@ void ccx_read_setup()
 	uint8_t value;
 	for(uint8_t i = 0; i< CCX_NR_OF_REGISTERS; i++) {
 		reg = pgm_read_byte(&CCx_registers[i]);
-		ccx_read(reg,&value);
+		ccx_read(reg, &value);
 		printf("%02x: %02x\r\n", reg, value);
 	}
 }
