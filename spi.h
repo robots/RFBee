@@ -4,15 +4,7 @@
 #include <stdint.h>
 #include <avr/io.h>
 
-#define SPI_PORT PORTB
-#define SPI_PIN  PINB
-
-#define SS_PIN   _BV(PB2)
-#define MOSI_PIN _BV(PB3)
-#define MISO_PIN _BV(PB4)
-#define SCK_PIN  _BV(PB5)
-
-#define MISO_STATE (!!((SPI_PIN) & (MISO_PIN)))
+#include "hardware.h"
 
 enum {
 	LOW = 0,

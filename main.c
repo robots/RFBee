@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
 
+#include "hardware.h"
+
 #include "globals.h"
 #include "config.h"
 #include "serial.h"
@@ -27,13 +29,6 @@
 #ifdef FACTORY_SELFTEST
 #include "TestIO.h"  // factory selftest
 #endif
-
-#define GDO_PORT PORTD
-#define GDO_PIN  PIND
-#define GDO_DDR  DDRD
-
-#define GDO0 _BV(PD2)
-#define GDO2 _BV(PD3)
 
 
 #undef DEBUG
@@ -98,18 +93,19 @@ static void loop()
 
 static void rfBeeInit()
 {
+	// used for polling the RF received data
+	GDO_DDR &= ~(GDO0 | GDO2);
+	GDO_PORT &= ~(GDO0 | GDO2);
+
+	EICRA |= _BV(ISC01) | _BV(ISC00); // rising edge
+	EIMSK |= _BV(INT0);
+
 	ccx_power_on_startup();
 	setCCxConfig();
 
 	serialMode = SERIALDATAMODE;
 	sleepCounter = 0;
 
-	// used for polling the RF received data
-	GDO_DDR &= ~GDO0;
-	GDO_PORT &= ~GDO0;
-
-	EICRA |= _BV(ISC01) | _BV(ISC00); // rising edge
-	EIMSK |= _BV(INT0);
 }
 
 //GD00 is located on INT 0

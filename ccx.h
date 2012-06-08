@@ -24,6 +24,9 @@
 
 #include <stdint.h>
 
+#include "hardware.h"
+
+
 #define CCx_PA_TABLESIZE 8
 
 // CC2500/CC1100/CC1101 STROBE, CONTROL AND STATUS REGISTER
