@@ -31,7 +31,13 @@
 
 #include "rfBeeSerial.h"
 
-uint8_t serialData[BUFFLEN+1]; // 1 extra so we can easily add a /0 when doing a debug print ;-)
+#define PAYLOAD_OFFSET 2
+
+#define BUFFLEN    (CCx_PACKT_LEN-PAYLOAD_OFFSET)
+
+struct ccxPacket_t tx_packet;
+uint8_t *serialData = &tx_packet.frame[PAYLOAD_OFFSET];
+
 uint8_t serialMode;
 volatile int sleepCounter;
 
@@ -287,7 +293,9 @@ void readSerialData()
 		rfBeeMode = config_get(CONFIG_RFBEE_MODE);
 		//only when TRANSMIT_MODE or TRANSCEIVE,transmit the buffer data,otherwise ignore
 		if ((rfBeeMode == TRANSMIT_MODE) || (rfBeeMode == TRANSCEIVE_MODE)) {
-			transmitData(serialData, len, config_get(CONFIG_MY_ADDR), config_get(CONFIG_DEST_ADDR));
+			tx_packet.len = len + PAYLOAD_OFFSET;
+			transmitData(&tx_packet);
+			//transmitData(serialData, len, config_get(CONFIG_MY_ADDR), config_get(CONFIG_DEST_ADDR));
 		}
 		pos = 0; // serial databuffer is free again.
 	}
@@ -373,7 +381,21 @@ void writeSerialData()
 
 int setMyAddress()
 {
-	ccx_write(CCx_ADDR, config_get(CONFIG_MY_ADDR));
+	uint8_t addr;
+
+	addr = config_get(CONFIG_MY_ADDR);
+	tx_packet.frame[1] = addr;
+	ccx_write(CCx_ADDR, addr);
+	return OK;
+}
+
+int setDstAddress()
+{
+	uint8_t addr;
+
+	addr = config_get(CONFIG_DEST_ADDR);
+	tx_packet.frame[0] = addr;
+
 	return OK;
 }
 
@@ -431,6 +453,7 @@ int setCCxConfig()
 	//ccx_read_setup();
 	// and restore the config settings
 	setMyAddress();
+	setDstAddress();
 	setAddressCheck();
 	setPowerAmplifier();
 	setRFBeeMode();

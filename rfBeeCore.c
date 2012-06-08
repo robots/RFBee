@@ -20,38 +20,63 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <avr/interrupt.h>
+#include <util/delay.h>
+
 #include "globals.h"
 #include "rfBeeCore.h"
 #include "rfBeeSerial.h"
 
 // send data via RF
-void transmitData(uint8_t *txData, uint8_t len, uint8_t srcAddress, uint8_t destAddress)
+//void transmitData(uint8_t *txData, uint8_t len, uint8_t srcAddress, uint8_t destAddress)
+void transmitData(struct ccxPacket_t *packet)
 {
 	uint8_t stat;
+	uint8_t size;
 
 	(void)stat;
 
-	ccx_strobe(CCx_SFTX); // flush the TX buffer
+	// disable RX mode
+	ccx_idle();
 
-	ccx_write(CCx_TXFIFO, len + 2);
-	ccx_write(CCx_TXFIFO, destAddress);
-	ccx_write(CCx_TXFIFO, srcAddress);
-	ccx_write_burst(CCx_TXFIFO, txData, len); // write len bytes of the serialData buffer into the CCx txfifo
-	ccx_strobe(CCx_STX);
+	// flush the RX buffer
+	ccx_strobe(CCx_SFRX);
 
-	while(1) {
-		uint8_t size;
-		stat = ccx_read(CCx_TXBYTES, &size);
-		if (0 == size) {
-			break;
-		} else {
-			ccx_strobe(CCx_STX);
-		}
-	}
+	// flush the TX buffer
+	ccx_strobe(CCx_SFTX);
+
+	// prepare TX mode
+	ccx_strobe(CCx_SFSTXON);
 
 #ifdef DEBUG
-	txData[len] = '\0';
-	printf("%s\r\n", txData);
+	printf("len= %d\n\r", packet->len + 1);
+#endif
+
+	// write packet (len + data)
+	ccx_write_burst(CCx_TXFIFO, (uint8_t *)packet, packet->len + 1);
+
+	// send packet
+	ccx_strobe(CCx_STX);
+
+	// wait for SYNC transmission
+	wait_GDO2_high();
+#ifdef DEBUG
+	printf("sync\n\r");
+#endif
+
+	// wait for packet completion
+	wait_GDO2_low();
+#ifdef DEBUG
+	printf("sent\n\r");
+#endif
+
+	// return to RX mode
+	ccx_strobe(CCx_SFTX); // flush the TX buffer
+	ccx_strobe(CCx_SRX);
+
+#ifdef DEBUG
+	packet->frame[packet->len] = '\0';
+	for (int i = 0; i < packet->len; i++)
+		printf("%02x", packet->frame[i]);
 #endif
 }
 
@@ -64,16 +89,18 @@ uint8_t txFifoFree()
 	(void)stat;
 
 	stat = ccx_read(CCx_TXBYTES, &size);
+
 	// handle a potential TX underflow by flushing the TX FIFO as described in section 10.1 of the CC 1100 datasheet
-	if (size >= 64) {//state got here seems not right, so using size to make sure it no more than 64
+	if (size & 0x80) {//state got here seems not right, so using size to make sure it no more than 64
 		ccx_strobe(CCx_SFTX);
-		stat = ccx_read(CCx_TXBYTES,&size);
+		stat = ccx_read(CCx_TXBYTES, &size);
 #ifdef DEBUG
 		printf("stat %02x\r\n", stat);
 #endif
 	}
+
 #ifdef DEBUG
-	printf("fifo left %02x\r\n", CCx_FIFO_SIZE - size);
+	printf("fifo left %02x size %d\r\n", CCx_FIFO_SIZE - size, size);
 #endif
 	return (CCx_FIFO_SIZE - size);
 }

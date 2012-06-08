@@ -29,7 +29,6 @@
 #include "rfBeeCore.h"
 #include <avr/pgmspace.h>
 
-#define BUFFLEN CCx_PACKT_LEN
 #define SERIALCMDMODE 1
 #define SERIALDATAMODE 0
 #define SERIALCMDTERMINATOR 13  // use <CR> to terminate commands
@@ -49,7 +48,7 @@ typedef struct
 }  AT_Command_t;
 
 extern uint8_t errNo;
-extern uint8_t serialData[BUFFLEN+1]; // 1 extra so we can easily add a /0 when doing a debug print ;-)
+//extern uint8_t serialData[BUFFLEN+1]; // 1 extra so we can easily add a /0 when doing a debug print ;-)
 extern uint8_t serialMode;
 extern volatile int sleepCounter;
 
@@ -73,6 +72,7 @@ void readSerialData();
 void writeSerialError();
 void writeSerialData();
 int setMyAddress();
+int setDstAddress();
 int setAddressCheck();
 int setPowerAmplifier();
 int changeUartBaudRate();

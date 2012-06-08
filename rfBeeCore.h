@@ -28,7 +28,7 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 
-void transmitData(uint8_t *txData,uint8_t len, uint8_t srcAddress, uint8_t destAddress);
+void transmitData(struct ccxPacket_t *packet);
 uint8_t txFifoFree();
 int receiveData(struct ccxPacket_t *packet);
 void sleepNow(uint8_t mode);

@@ -129,7 +129,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x47,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x09,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
+    0x06,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control. bit2 = 1 append RSSI and LQI ,bit2 = 0 not append
     0x05,   // PKTCTRL0  Packet automation control.
@@ -195,7 +195,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x0E,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x09,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
+    0x06,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control. bit2 = 1 append RSSI and LQI ,bit2 = 0 not append
     0x05,   // PKTCTRL0  Packet automation control.
@@ -261,7 +261,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x0E,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x09,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
+    0x06,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control. bit2 = 1 append RSSI and LQI ,bit2 = 0 not append
     0x05,   // PKTCTRL0  Packet automation control.
@@ -326,7 +326,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x0E,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x2E,   // IOCFG2    GDO2 output pin configuration.
+    0x06,   // IOCFG2    GDO2 output pin configuration.
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control.
     0x05,   // PKTCTRL0  Packet automation control.
@@ -392,7 +392,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x0E,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x09,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
+    0x06,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control. bit2 = 1 append RSSI and LQI ,bit2 = 0 not append
     0x05,   // PKTCTRL0  Packet automation control.
@@ -458,7 +458,7 @@ static const uint8_t CCx_registerSettings[CCX_NR_OF_CONFIGS][CCX_NR_OF_REGISTERS
     0x35,   // TEST1     Various test settings.
     0x09,   // TEST0     Various test settings.
     0x0E,   // FIFOTHR   RXFIFO and TXFIFO thresholds.
-    0x09,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
+    0x06,   // IOCFG2    GDO2 output pin configuration.0x09-CCA mode, 0x2E-High impedance
     0x01,   // IOCFG0D   GDO0 output pin configuration. Refer to SmartRF?Studio User Manual for detailed pseudo register explanation.
     0x04,   // PKTCTRL1  Packet automation control. bit2 = 1 append RSSI and LQI ,bit2 = 0 not append
     0x05,   // PKTCTRL0  Packet automation control.
